@@ -16,16 +16,13 @@ jobs:
     # 🔹 Clonar el backend desde GitHub
     - name: Clone Backend Repository
       run: |
-        git clone https://github.com/GIED/remaqApi.git backend  # Clona el repositorio del backend
-      env:
-        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # Usa el token para autenticarse
+         git clone https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/GIED/remaqApi.git backend  # Clona el repositorio del backend
+       
 
     # 🔹 Clonar el frontend desde GitHub
     - name: Clone Frontend Repository
       run: |
-        git clone https://github.com/GIED/remaqUi.git frontend  # Clona el repositorio del frontend
-      env:
-        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+         git clone https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/GIED/remaqUi.git frontend  # Clona el repositorio del frontend
 
     # 🔹 Configurar Java y compilar el backend con Maven
     - name: Setup Java & Build Backend
