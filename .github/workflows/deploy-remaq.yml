@@ -1,0 +1,111 @@
+name: Build and Deploy to Linode
+
+on:
+  push:
+    branches:
+      - main  # Se ejecuta cuando hay un push en la rama "main"
+
+jobs:
+  build:  # Primer trabajo: Construcción del backend y frontend
+    runs-on: ubuntu-latest  # Utiliza un entorno Ubuntu en GitHub Actions
+
+    steps:
+    - name: Checkout Deploy Repository
+      uses: actions/checkout@v3  # Clona el repositorio "deploy-remaq"
+
+    # 🔹 Clonar el backend desde GitHub
+    - name: Clone Backend Repository
+      run: |
+        git clone https://github.com/GIED/remaq-api.git backend  # Clona el repositorio del backend
+      env:
+        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # Usa el token para autenticarse
+
+    # 🔹 Clonar el frontend desde GitHub
+    - name: Clone Frontend Repository
+      run: |
+        git clone https://github.com/GIED/remaqUi.git frontend  # Clona el repositorio del frontend
+      env:
+        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+    # 🔹 Configurar Java y compilar el backend con Maven
+    - name: Setup Java & Build Backend
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'  # Usamos la distribución Temurin de Java
+        java-version: '17'  # Versión de Java compatible con el backend
+    - run: |
+        cd backend
+        mvn clean package -DskipTests  # Compila el backend, omitiendo pruebas para mayor velocidad
+        mkdir -p artifact  # Crea la carpeta donde se guardarán los archivos construidos
+        cp target/api-0.0.1-SNAPSHOT.jar artifact/  # Copia el archivo .jar generado al directorio de artefactos
+
+    # 🔹 Configurar Node.js y compilar el frontend con Angular
+    - name: Setup Node & Build Frontend
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20.9.0  # Versión de Node.js usada en el frontend
+    - run: |
+        cd frontend
+        npm install  # Instala las dependencias del frontend
+        npm run build --prod  # Genera la versión optimizada para producción
+        mkdir -p artifact/frontend  # Crea la carpeta de artefactos para el frontend
+        cp -r dist/diamond-ng/* artifact/frontend/  # Copia los archivos generados
+
+    # 🔹 Guardar los artefactos construidos (backend y frontend)
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: artifact/  # Sube los archivos generados para ser usados en el siguiente job
+
+  deploy:  # Segundo trabajo: Desplegar los artefactos en Linode
+    needs: build  # Este job solo se ejecuta si el job "build" fue exitoso
+    runs-on: ubuntu-latest  # Usa un entorno Ubuntu
+
+    steps:
+    - name: Setup SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa  # Guarda la clave privada SSH para conectarse a Linode
+        chmod 600 ~/.ssh/id_rsa  # Ajusta los permisos de la clave
+        ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts  # Agrega Linode a los hosts conocidos
+
+    # 🔹 Descargar los artefactos compilados del backend y frontend
+    - name: Download Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: build-artifacts
+        path: artifact/  # Descarga los archivos compilados en la carpeta artifact/
+
+    # 🔹 Conectarse a Linode y eliminar versiones anteriores
+    - name: Deploy to Linode
+      run: |
+        ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          echo "🗑 Eliminando versiones anteriores..."
+
+          # ✅ Eliminar el backend antiguo antes de copiar el nuevo
+          rm -f /opt/backend/ferreteria/ferreteria.jar
+
+          # ✅ Eliminar archivos del frontend antiguo excepto .htaccess
+          find /var/www/html/ferreteria/ -mindepth 1 ! -name '.htaccess' -delete
+
+          echo "📥 Copiando archivos nuevos..."
+        EOF
+
+        # 🔹 Copiar el nuevo backend al servidor Linode
+        scp -P ${{ secrets.SSH_PORT }} artifact/api-0.0.1-SNAPSHOT.jar ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/opt/backend/ferreteria/ferreteria.jar
+
+        # 🔹 Copiar los nuevos archivos del frontend a Linode
+        scp -P ${{ secrets.SSH_PORT }} -r artifact/frontend/* ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/html/ferreteria/
+
+        # 🔹 Conectarse a Linode para reiniciar los servicios
+        ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          echo "🔄 Reiniciando Backend..."
+          chmod +x /opt/backend/ferreteria/mi-backend.sh  # Asegurar que el script sea ejecutable
+          /opt/backend/ferreteria/mi-backend.sh restart  # Reiniciar el backend
+
+          echo "🌐 Reiniciando NGINX..."
+          sudo systemctl restart nginx  # Reiniciar NGINX para reflejar los cambios del frontend
+
+          echo "✅ Despliegue completado"
+        EOF
