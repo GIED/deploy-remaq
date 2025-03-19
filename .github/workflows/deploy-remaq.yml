@@ -23,6 +23,10 @@ jobs:
       run: |
         git clone https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/GIED/remaqUi.git frontend
 
+    # ✅ Crear carpeta de artefactos antes de copiar los archivos compilados
+    - name: Crear carpeta de artefactos
+      run: mkdir -p artifact/backend artifact/frontend
+
     # ✅ Configurar Java y compilar el backend con Maven
     - name: Setup Java & Build Backend
       uses: actions/setup-java@v3
@@ -32,24 +36,24 @@ jobs:
     - run: |
         cd backend
         mvn clean package -DskipTests  # Compila el backend sin ejecutar pruebas
-        mkdir -p artifact/backend
-        cp target/api-0.0.1-SNAPSHOT.jar artifact/backend/
+        ls -lh target/  # ✅ Verificar que se generó el .jar
+        cp target/api-0.0.1-SNAPSHOT.jar ../artifact/backend/
 
     # ✅ Configurar Node.js y compilar el frontend con Angular
-    - name: Setup Node & Build Frontend
+    - name: Setup Node.js & Build Frontend
       uses: actions/setup-node@v3
       with:
-        node-version: 20.9.0  # Versión de Node.js usada en el frontend
+        node-version: 20.9.0
     - run: |
         cd frontend
-        npm install  # Instala las dependencias del frontend
-        npm run build --prod  # Genera la versión optimizada para producción
-        mkdir -p artifact/frontend
-        cp -r dist/diamond-ng/* artifact/frontend/
+        npm install
+        npm run build --prod
+        ls -lh dist/diamond-ng/  # ✅ Verificar que se generó el frontend
+        cp -r dist/diamond-ng/* ../artifact/frontend/
 
-    # ✅ Verificar que los archivos se generaron antes de subirlos
+    # ✅ Verificar contenido antes de subir los artefactos
     - name: Verificar contenido de artifact/
-      run: ls -lh artifact/
+      run: ls -lh artifact/backend/ artifact/frontend/
 
     # ✅ Guardar los artefactos construidos por separado
     - name: Upload Backend Artifact
