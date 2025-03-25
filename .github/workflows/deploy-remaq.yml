@@ -121,7 +121,7 @@ jobs:
           /opt/webServer/backend/ferreteria/mi-backend.sh restart   # Reiniciar el backend
 
           echo "🌐 Reiniciando NGINX..."
-          sudo systemctl restart nginx  # Reiniciar NGINX para reflejar los cambios del frontend
+          sudo systemctl restart nginx  # Reiniciar NGINX para reflejar los cambios del frontend 240325
 
           echo "✅ Despliegue completado"
         EOF
