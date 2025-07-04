@@ -128,6 +128,6 @@ jobs:
           # despliegue 130525v2
           # despliegue 130525v3
           # despliegue 130525v4
-          # despliegue 040725v5
+          # despliegue 040725v1
           echo "✅ Despliegue completado"
         EOF
