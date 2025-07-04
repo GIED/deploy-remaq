@@ -129,5 +129,6 @@ jobs:
           # despliegue 130525v3
           # despliegue 130525v4
           # despliegue 040725v1
+          # despliegue 040725v1 ajusta ruta de inicio
           echo "✅ Despliegue completado"
         EOF
