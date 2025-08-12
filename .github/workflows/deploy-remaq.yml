@@ -131,5 +131,6 @@ jobs:
           # despliegue 040725v1
           # despliegue 040725v1 ajusta ruta de inicio
           # despliegue 040725v1 ajusta environment production
+          # despliegue 120825 ajsute api prod factura
           echo "✅ Despliegue completado"
         EOF
