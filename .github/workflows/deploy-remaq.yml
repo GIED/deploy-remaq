@@ -133,5 +133,6 @@ jobs:
           # despliegue 040725v1 ajusta environment production
           # despliegue 120825 ajsute api prod factura
           # despliegue 300725v1
+          # despliegue 130825 ajsute de forma de pago en factura
           echo "✅ Despliegue completado"
         EOF
