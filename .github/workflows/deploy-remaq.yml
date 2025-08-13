@@ -134,5 +134,6 @@ jobs:
           # despliegue 120825 ajsute api prod factura
           # despliegue 300725v1
           # despliegue 130825 ajsute de forma de pago en factura
+          # despliegue 130825 ajsute servicio de factura
           echo "✅ Despliegue completado"
         EOF
