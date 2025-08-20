@@ -131,7 +131,10 @@ jobs:
           # despliegue 040725v1
           # despliegue 040725v1 ajusta ruta de inicio
           # despliegue 040725v1 ajusta environment production
+          # despliegue 120825 ajsute api prod factura
           # despliegue 300725v1
+          # despliegue 130825 ajsute de forma de pago en factura
+          # despliegue 130825 ajsute servicio de factura
           # despliegue 190825v1 se ajusta modulo de cotizaciones y ventas
           echo "✅ Despliegue completado"
         EOF
