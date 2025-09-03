@@ -137,6 +137,7 @@ jobs:
           # despliegue 130825 ajsute servicio de factura
           # despliegue 190825v1 se ajusta modulo de cotizaciones y ventas
           # despliegue 030925 se agrega modulo de claves sat
+          # despliegue 030925 se ajusta conexion a base de datos
         
           echo "✅ Despliegue completado"
         EOF
