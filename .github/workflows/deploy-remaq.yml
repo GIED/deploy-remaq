@@ -135,5 +135,6 @@ jobs:
           # despliegue 300725v1
           # despliegue 130825 ajsute de forma de pago en factura
           # despliegue 130825 ajsute servicio de factura
+          # despliegue 030925 se agrega modulo de claves sat
           echo "✅ Despliegue completado"
         EOF
