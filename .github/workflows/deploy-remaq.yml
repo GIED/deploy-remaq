@@ -139,6 +139,7 @@ jobs:
           # despliegue 030925 se agrega modulo de claves sat
           # despliegue 030925 se ajusta conexion a base de datos
           # despliegue 160626 se actualiza vista. 
+          # despliegue 160626 se agrega boton para eliminar prod coti
         
           echo "✅ Despliegue completado"
         EOF
