@@ -141,6 +141,7 @@ jobs:
           # despliegue 160626 se actualiza vista. 
           # despliegue 160626 se agrega boton para eliminar prod coti
           # despliegue 051126 ajuste de ingreso de productos
+          # despliegue 051126 ajuste de modulo de ingreso de productos
         
           echo "✅ Despliegue completado"
         EOF
